@@ -62,7 +62,6 @@ google-auth-oauthlib==1.1.0
 -e git+https://github.com/Joeclinton1/google-images-download.git@e91e6a38ad654877f59edc7894822f5319d75df1#egg=google_images_download
 google-pasta==0.2.0
 googleapis-common-protos==1.65.0
-googletrans==4.0.0rc1
 gradio==5.4.0
 gradio_client==1.4.2
 grpcio==1.59.3
