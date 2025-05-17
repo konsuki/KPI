@@ -78,7 +78,7 @@ hstspreload==2024.8.1
 html2image==2.0.4.3
 httpcore==1.0.6
 httplib2==0.22.0
-httpx==0.27.2
+httpx==0.13.3
 huggingface-hub==0.26.1
 humanfriendly==10.0
 hyperframe==5.2.0
