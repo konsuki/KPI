@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Google Org Chart (Ajax版)</title>
+    <title>ONEマップ</title>
 
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -139,8 +139,8 @@
             let html = `<div class="node-content ${cssClass || 'default-content'}">` +
                 `<h4>${title || ''}</h4>`;
             if (rinen) html += `<p><strong>理念:</strong>${rinen}</p>`;
-            if (mokuhyo) html += `<p><strong>目標:</strong>${mokuhyo}</p>`;
-            if (kpi) html += `<p><strong>KPI:</strong>${kpi}</p>`;
+            if (mokuhyo) html += `<p><strong>目的:</strong>${mokuhyo}</p>`;
+            if (kpi) html += `<p><strong>今月KPI:</strong>${kpi}</p>`;
             const raw = Number.isFinite(rate) ? rate * 100 : 0;
             const pct = Math.floor(raw * 100) / 100;
             html += `<div class="progress-container"><span>達成率:${pct}%</span>` +
