@@ -4,105 +4,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+
     <title>ONEマップ</title>
 
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="icon" type="image/x-icon" href="/static/facvicon.svg">
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <!-- Google Charts -->
+    <!-- Google Charts（チャート作成） -->
     <script src="https://www.gstatic.com/charts/loader.js"></script>
+    <!--  Panzoom(ズーム・パンをできるようにする) -->
+    <script src="https://unpkg.com/@panzoom/panzoom/dist/panzoom.min.js"></script>
+    <!-- Lottie（ズームの操作のやり方を表示するアニメーション） -->
+    <script src="https://unpkg.com/@dotlottie/player-component@2.7.12/dist/dotlottie-player.mjs" type="module"></script>
 
-    <style>
-        #chart_div {
-            width: 100%;
-            margin-top: 20px;
-        }
 
-        .google-visualization-orgchart-node {
-            border: none;
-            background: none;
-            box-shadow: none;
-        }
-
-        .node-content {
-            display: inline-block;
-            min-width: 160px;
-            padding: 10px 15px;
-            border: 2px solid #ccc;
-            border-radius: 5px;
-            background: #fff;
-            font: 12px sans-serif;
-            text-align: left;
-        }
-
-        .node-content.team-ads-content,
-        .node-content.sub-ads-content,
-        {
-        border-color: #4CAF50;
-        }
-
-        .node-content.team-mark-content,
-        .node-content.sub-mark-content {
-            border-color: #2196F3;
-        }
-
-        .node-content.team-sales-content,
-        .node-content.sub-sales-content {
-            border-color: #f44336;
-        }
-
-        .node-content.team-csB-content,
-        .node-content.sub-csB-content,
-        .node-content.team-csA-content,
-        .node-content.sub-csA-content {
-            border-color: #ffeb3b;
-        }
-
-        .node-content.team-sns-content,
-        .node-content.sub-sns-content {
-            border-color: #ff9800;
-        }
-
-        .node-content.team-writ-content,
-        .node-content.sub-writ-content {
-            border-color: #6a258a;
-        }
-
-        .node-content.ceo-content {
-            border-color: #607d8b;
-        }
-
-        .node-content.error-content {
-            border-color: red !important;
-            background: #ffeeee;
-            color: red;
-        }
-
-        .progress-container {
-            margin-top: 8px;
-            font-size: .9em;
-        }
-
-        .progress-container span {
-            display: block;
-            margin-bottom: 3px;
-            color: #555;
-        }
-
-        .progress-bar-bg {
-            width: 100%;
-            height: 8px;
-            background: #e0e0e0;
-            border-radius: 5px;
-            overflow: hidden;
-        }
-
-        .progress-bar {
-            height: 100%;
-            width: 0;
-            border-radius: 5px 0 0 5px;
-            background: #ff9800;
-        }
-    </style>
 
     <script>
         // Google Charts の読み込み
@@ -185,14 +101,36 @@
         $(function () {
             google.charts.setOnLoadCallback(function () {
                 fetchAndDraw();
-                setInterval(fetchAndDraw, 3000);
+                setInterval(fetchAndDraw, 300);
             });
         });
     </script>
 </head>
 
 <body>
+
     <div id="chart_div"></div>
+    <div id="tutorial-lottie" style="
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 150px;
+        height: 150px;
+        z-index: 1000;
+        pointer-events: none;
+        opacity: 0.8;
+"></div>
+    <button id="refresh-btn" aria-label="手動データ更新"><dotlottie-player
+            src="https://lottie.host/9fbf2bda-2358-4764-968f-7ce51d03cc85/a1OVNMfV5V.lottie" background="transparent"
+            speed="1" style="width: 30px; height: 30px" loop autoplay></dotlottie-player></button>
+    <script>
+        document.getElementById('refresh-btn')
+            .addEventListener('click', function () {
+                fetchAndDraw();
+            });
+
+    </script>
+    <!-- <script src="../static/zoom.js" type="module"></script> -->
 </body>
 
 </html>

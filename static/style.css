@@ -1,0 +1,172 @@
+body {
+    height: 100px;
+}
+
+#chart_div {
+    width: 300vw;
+    padding-top: 300px;
+    background-color: white;
+    background-image: radial-gradient(#ccc 0.1px, transparent 1.92px);
+    background-size: 22px 22px;
+    /* 以下、スマホでのパンを可能にする。（これがないとパンがスクロールに操作を阻害される） */
+    touch-action: none;
+    cursor: grab;
+    /* overflow: hidden; */
+}
+
+
+/* ノード（四角形）を結ぶ線の色 */
+#chart_div .google-visualization-orgchart-linebottom {
+    border-bottom: 2px solid #a1a1a1;
+}
+
+#chart_div .google-visualization-orgchart-lineleft {
+    border-left: 2px solid #a1a1a1;
+}
+
+#chart_div .google-visualization-orgchart-lineright {
+    border-right: 2px solid #a1a1a1;
+}
+
+
+.google-visualization-orgchart-node {
+    border: 2px solid rgb(226, 226, 226) !important;
+    background: none;
+    box-shadow: none !important;
+    -webkit-box-shadow: none !important;
+    -moz-box-shadow: none !important;
+    box-shadow: none;
+}
+
+.node-content {
+    width: 100%;
+    height: 100%;
+    min-height: 150px;
+    /* チームごとの色がついている部分のパディング */
+    padding: 10px !important;
+    box-sizing: border-box;
+    display: inline-block;
+    min-width: 160px;
+    padding: 10px 15px;
+    border: 2px solid #eeeeee;
+    border-radius: 5px;
+    background: #fff;
+    font: 12px sans-serif;
+    text-align: left;
+}
+
+.node-content.team-ads-content,
+.node-content.sub-ads-content {
+    border-color: #4CAF50;
+}
+
+.node-content.team-mark-content,
+.node-content.sub-mark-content {
+    border-color: #2196F3;
+}
+
+/* セールスチーム */
+.node-content.team-sales-content,
+.node-content.sub-sales-content {
+    border-color: #f44336;
+}
+
+/* CSチーム */
+.node-content.team-csB-content,
+.node-content.sub-csB-content,
+.node-content.team-csA-content,
+.node-content.sub-csA-content {
+    border-color: #ffeb3b;
+}
+
+/* 広告チーム */
+.node-content.team-sns-content,
+.node-content.sub-sns-content {
+    border-color: #ff9800;
+}
+
+/* ライターチーム */
+.node-content.team-writ-content,
+.node-content.sub-writ-content {
+    border-color: #6a258a;
+}
+
+/* 代表 */
+.node-content.ceo-content {
+    border-color: #607d8b;
+}
+
+/* エラー */
+.node-content.error-content {
+    border-color: red !important;
+    background: #ffeeee;
+    color: red;
+}
+
+/* プログレスバーを囲む箱 */
+.progress-container {
+    margin-top: 8px;
+    font-size: .9em;
+}
+
+.progress-container span {
+    display: flex;
+    justify-content: center;
+    display: block;
+    margin-bottom: 0px;
+    color: #555;
+}
+
+.progress-bar-bg {
+    width: 95%;
+    height: 8px;
+    background: #e0e0e0;
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+/* 達成率の棒グラフ */
+.progress-container .progress-bar {
+    height: 100%;
+    width: 0%;
+    padding: 0;
+    border-radius: 3px;
+    background: #ff9800;
+    transition: width 0.5s ease;
+    /* ← これがアニメーションの鍵！ */
+}
+
+.google-visualization-orgchart-node-medium {
+    height: auto !important;
+}
+
+/* モダンな更新ボタン */
+#refresh-btn {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 60px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 60px;
+    background: linear-gradient(135deg, #e1c5ff, #6ba1fe);
+    border: none;
+    border-radius: 50%;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    color: #fff;
+    font-size: 24px;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    z-index: 1000;
+}
+
+#refresh-btn:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.35);
+}
+
+#refresh-btn:active {
+    transform: translateY(-2px) scale(0.98);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
