@@ -1,4 +1,11 @@
 from flask import Flask, request, jsonify, render_template, abort
+import gspread
+from oauth2client.service_account import ServiceAccountCredentials
+
+# ── 定数 ──
+LOOKUP_SHEET_NAME   = '理念・目標・KPI一覧'
+LOOKUP_HEADER_ROW   = 2   # ヘッダ行（2行目）
+SPREADSHEET_ID      = '1GVWRGEA_om3bKLC-DIPnM62Ex1tepdk0snRR101VnpNc7hoNFhnlDmss'  # URL から取得
 
 app = Flask(__name__)
 
@@ -97,12 +104,67 @@ current_chart_data = initial_chart_data
 # SSE 用にクライアントごとのキューを保持
 clients = []
 
-@app.route('/')
+@app.route('/', methods=['GET'])
 def index():
-    """ ルートURLにアクセスがあった場合、現在のチャートデータで index.html を表示 """
-    # templatesフォルダ内の index.html をレンダリングして返す
-    # chart_data という名前でテンプレートにデータを渡す
-    return render_template('index.html', chart_data=current_chart_data)
+    global current_chart_data
+    current_chart_data = fetch_sheet_data()
+    return render_template('index.html')
+
+def fetch_sheet_data():
+    # 1) 認証
+    scope = [
+        'https://spreadsheets.google.com/feeds',
+        'https://www.googleapis.com/auth/drive'
+    ]
+    creds  = ServiceAccountCredentials.from_json_keyfile_name(
+        'credentials.json', scope
+    )
+    client = gspread.authorize(creds)
+
+    # 2) シート取得
+    ss    = client.open_by_key(SPREADSHEET_ID)
+    sheet = ss.worksheet(LOOKUP_SHEET_NAME)
+
+    # 3) 全データ取得
+    all_values = sheet.get_all_values()  # List[List[str]]
+    # 4) ヘッダとデータ部分に分割
+    header = all_values[LOOKUP_HEADER_ROW - 1]
+    data   = all_values[LOOKUP_HEADER_ROW:]
+
+    # 5) ヘッダ→列インデックスマップ
+    col_index = { name: i for i, name in enumerate(header) }
+
+    # 6) 必須ヘッダチェック
+    for key in ['id','parent','cssClass','rinen','mokuhyo','kpi','tasseiRitsu']:
+        if key not in col_index:
+            raise ValueError(f"ヘッダに「{key}」が見つかりません")
+
+    # 7) 各行をノード辞書に変換
+    nodes = []
+    for row in data:
+        # 空行はスキップ
+        if not any(cell.strip() for cell in row):
+            continue
+        # 数値変換
+        raw = row[col_index['tasseiRitsu']].strip()
+        try:
+            taux = float(raw)
+        except:
+            taux = 0.0
+
+        nodes.append({
+            'id':           row[col_index['id']].strip(),
+            'parent':       row[col_index['parent']].strip(),
+            'cssClass':     row[col_index['cssClass']].strip(),
+            'title':        row[col_index['id']].strip(),
+            'rinen':        row[col_index['rinen']].strip(),
+            'mokuhyo':      row[col_index['mokuhyo']].strip(),
+            'kpi':          row[col_index['kpi']].strip(),
+            'tasseiRitsu':  taux,
+            'tooltip':      ''
+        })
+
+    return nodes
 
 
 
