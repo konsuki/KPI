@@ -34,29 +34,37 @@
             text-align: left;
         }
 
-        .node-content.team-a-content,
-        .node-content.sub-a-content {
-            border-color: #4CAF50;
+        .node-content.team-ads-content,
+        .node-content.sub-ads-content,
+        {
+        border-color: #4CAF50;
         }
 
-        .node-content.team-b-content,
-        .node-content.sub-b-content {
+        .node-content.team-mark-content,
+        .node-content.sub-mark-content {
             border-color: #2196F3;
         }
 
-        .node-content.team-c-content,
-        .node-content.sub-c-content {
+        .node-content.team-sales-content,
+        .node-content.sub-sales-content {
             border-color: #f44336;
         }
 
-        .node-content.team-d-content,
-        .node-content.sub-d-content {
+        .node-content.team-csB-content,
+        .node-content.sub-csB-content,
+        .node-content.team-csA-content,
+        .node-content.sub-csA-content {
             border-color: #ffeb3b;
         }
 
-        .node-content.team-e-content,
-        .node-content.sub-e-content {
+        .node-content.team-sns-content,
+        .node-content.sub-sns-content {
             border-color: #ff9800;
+        }
+
+        .node-content.team-writ-content,
+        .node-content.sub-writ-content {
+            border-color: #6a258a;
         }
 
         .node-content.ceo-content {
@@ -67,24 +75,6 @@
             border-color: red !important;
             background: #ffeeee;
             color: red;
-        }
-
-        .node-content h4 {
-            margin: 0 0 8px;
-            font-size: 1.1em;
-            color: #333;
-            text-align: center;
-        }
-
-        .node-content p {
-            margin: 4px 0;
-            font-size: .9em;
-            color: #555;
-        }
-
-        .node-content p strong {
-            margin-right: 5px;
-            color: #000;
         }
 
         .progress-container {
@@ -143,7 +133,7 @@
             if (kpi) html += `<p><strong>今月KPI:</strong>${kpi}</p>`;
             const raw = Number.isFinite(rate) ? rate * 100 : 0;
             const pct = Math.floor(raw * 100) / 100;
-            html += `<div class="progress-container"><span>達成率:${pct}%</span>` +
+            html += `<div class="progress-container"><span><strong>達成率:${pct}%<strong></span>` +
                 `<div class="progress-bar-bg"><div class="progress-bar" style="width:${pct}%;"></div></div>` +
                 `</div></div>`;
             return html;
