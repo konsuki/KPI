@@ -4,8 +4,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Google Org Chart (Flask連携)</title>
+    <title>Google Org Chart (Ajax版)</title>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Google Charts -->
     <script src="https://www.gstatic.com/charts/loader.js"></script>
+
     <style>
         #chart_div {
             width: 100%;
@@ -82,8 +87,6 @@
             color: #000;
         }
 
-
-
         .progress-container {
             margin-top: 8px;
             font-size: .9em;
@@ -110,69 +113,91 @@
             background: #ff9800;
         }
     </style>
+
     <script>
-        // SSE リロード
-        const evtSource = new EventSource('/stream');
-        evtSource.onmessage = e => { if (e.data === 'reload') location.reload(); };
-
-        // OrgChart 初期化
+        // Google Charts の読み込み
         google.charts.load('current', { packages: ['orgchart'] });
-        google.charts.setOnLoadCallback(drawChartWithData);
 
+        // Ajax でデータを取得してチャート描画
+        function fetchAndDraw() {
+            $.ajax({
+                url: '/update',
+                type: 'GET',
+                dataType: 'json',
+                success: function (res) {
+                    const rowsData = res.chart_data || [];
+                    drawChartWithData(rowsData);
+                },
+                error: function (err) {
+                    console.error('データ取得エラー', err);
+                }
+            });
+        }
+
+        // ノードHTMLを組み立て
         function formatNode(cssClass, title, rinen, mokuhyo, kpi, rate) {
-            let html = `<div class="node-content ${cssClass || 'default-content'}">`
-                + `<h4>${title || ''}</h4>`;
+            let html = `<div class="node-content ${cssClass || 'default-content'}">` +
+                `<h4>${title || ''}</h4>`;
             if (rinen) html += `<p><strong>理念:</strong>${rinen}</p>`;
             if (mokuhyo) html += `<p><strong>目標:</strong>${mokuhyo}</p>`;
             if (kpi) html += `<p><strong>KPI:</strong>${kpi}</p>`;
             const raw = Number.isFinite(rate) ? rate * 100 : 0;
             const pct = Math.floor(raw * 100) / 100;
-            html += `<div class="progress-container"><span>達成率:${pct}%</span>`
-                + `<div class="progress-bar-bg"><div class="progress-bar" style="width:${pct}%;"></div></div>`
-                + `</div></div>`;
+            html += `<div class="progress-container"><span>達成率:${pct}%</span>` +
+                `<div class="progress-bar-bg"><div class="progress-bar" style="width:${pct}%;"></div></div>` +
+                `</div></div>`;
             return html;
         }
 
-        function drawChartWithData() {
+        // チャート描画
+        function drawChartWithData(rowsData) {
             const data = new google.visualization.DataTable();
             data.addColumn('string', 'Name');
             data.addColumn('string', 'Manager');
             data.addColumn('string', 'ToolTip');
 
+            let formatted;
             try {
-                const rowsData = {{ chart_data | tojson | safe
-            }};
-        console.log('Chart data:', rowsData);
+                formatted = rowsData.map(node => [
+                    {
+                        v: node.id,
+                        f: formatNode(
+                            node.cssClass,
+                            node.title,
+                            node.rinen,
+                            node.mokuhyo,
+                            node.kpi,
+                            node.tasseiRitsu
+                        )
+                    },
+                    node.parent || '',
+                    node.tooltip || ''
+                ]);
 
-        const formatted = rowsData.map(node => [
-            {
-                v: node.id, f: formatNode(
-                    node.cssClass, node.title, node.rinen, node.mokuhyo, node.kpi, node.tasseiRitsu
-                )
-            },
-            node.parent || '', node.tooltip || ''
-        ]);
+                if (!formatted.length) throw new Error('No data');
+            } catch (e) {
+                console.error('Error processing data:', e);
+                formatted = [[
+                    { v: 'error', f: '<div class="node-content error-content">データの表示中にエラーが発生しました</div>' },
+                    '',
+                    ''
+                ]];
+            }
 
-        if (formatted.length) {
             data.addRows(formatted);
-        } else {
-            throw new Error('No data');
-        }
-      } catch (e) {
-            console.error('Error processing data:', e);
-            data.addRows([[
-                {
-                    v: 'error', f: '<div class="node-content error-content">' +
-                        'データの表示中にエラーが発生しました<br><small>詳細はコンソールを確認</small></div>'
-                },
-                '', 'エラー発生'
-            ]]);
+
+            new google.visualization.OrgChart(
+                document.getElementById('chart_div')
+            ).draw(data, { allowHtml: true, allowCollapse: true });
         }
 
-        new google.visualization.OrgChart(
-            document.getElementById('chart_div')
-        ).draw(data, { allowHtml: true, allowCollapse: true });
-    }
+        // 初回描画 & 定期更新（5秒ごと）
+        $(function () {
+            google.charts.setOnLoadCallback(function () {
+                fetchAndDraw();
+                setInterval(fetchAndDraw, 5000);
+            });
+        });
     </script>
 </head>
 

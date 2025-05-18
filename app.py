@@ -1,5 +1,4 @@
-from flask import Flask, Response, request, stream_with_context, render_template, abort
-import queue
+from flask import Flask, request, jsonify, render_template, abort
 
 app = Flask(__name__)
 
@@ -105,47 +104,28 @@ def index():
     # chart_data という名前でテンプレートにデータを渡す
     return render_template('index.html', chart_data=current_chart_data)
 
-# ① SSE ストリーム用エンドポイント
-@app.route('/stream')
-def stream():
-    def event_stream(q):
-        try:
-            while True:
-                data = q.get()         # queue に何か入るまでブロック
-                yield f"data: {data}\n\n"
-        except GeneratorExit:
-            pass
 
-    q = queue.Queue()
-    clients.append(q)
-    # text/event-stream でレスポンスを返す
-    return Response(stream_with_context(event_stream(q)),
-                    mimetype='text/event-stream')
 
-# ② チャート更新エンドポイント（POST）
-@app.route('/update', methods=['POST'])
+# POST と GET 両方を許可
+@app.route('/update', methods=['GET', 'POST'])
 def update_chart():
     global current_chart_data
-    if not request.is_json:
-        abort(400, "Request must be JSON")
-    received = request.get_json()
-    # 🔽 ここで毎回 JSON 内容をターミナルに出力
-    print("▶ 受信したJSONデータ:")
-    print(received)
 
-    if not isinstance(received, list):
-        abort(400, "Expected list")
-    current_chart_data = received
+    # ── POST: データ更新
+    if request.method == 'POST':
+        if not request.is_json:
+            return jsonify({"status": "error", "message": "JSON を送ってください"}), 400
+        received = request.get_json()
+        if not isinstance(received, list):
+            return jsonify({"status": "error", "message": "リスト形式で送ってください"}), 400
 
-    # クライアント全員に「reload」イベントをキューイング
-    for q in clients:
-        q.put('reload')
-    
-    # ✅ 更新成功メッセージを出力
-    print("✅ データが更新されました！")
+        current_chart_data = received
+        print("▶ データを更新しました:", received)
+        return jsonify({"status": "success"})
 
-    # レスポンスは 204（No Content）で OK
-    return render_template('index.html', chart_data=current_chart_data)
+    # ── GET: 現在のチャート用データを返す
+    else:
+        return jsonify({"chart_data": current_chart_data})
 
 if __name__ == '__main__':
     # debug=True なら print() がリアルタイムでターミナルに出ます
