@@ -7,6 +7,11 @@
 
     <title>ONEマップ</title>
 
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&display=swap" rel="stylesheet">
+
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link rel="icon" type="image/x-icon" href="/static/facvicon.svg">
     <!-- jQuery -->
@@ -32,6 +37,8 @@
                 dataType: 'json',
                 success: function (res) {
                     const rowsData = res.chart_data || [];
+                    // console.log('取得したデータ', rowsData);
+
                     drawChartWithData(rowsData);
                 },
                 error: function (err) {
@@ -41,17 +48,34 @@
         }
 
         // ノードHTMLを組み立て
-        function formatNode(cssClass, title, rinen, mokuhyo, kpi, rate) {
+        function formatNode(cssClass, title, rinen, mokuhyo, kpi, rate, member) {
             let html = `<div class="node-content ${cssClass || 'default-content'}">` +
-                `<h4>${title || ''}</h4>`;
-            if (rinen) html += `<p><strong>理念:</strong>${rinen}</p>`;
-            if (mokuhyo) html += `<p><strong>目的:</strong>${mokuhyo}</p>`;
-            if (kpi) html += `<p><strong>今月KPI:</strong>${kpi}</p>`;
+                `<h4 class="project-title">${title || ''}</h4>`;
+            if (rinen) html += `<p><strong>理念：</strong>${rinen}</p>`;
+            if (mokuhyo) html += `<p><strong>目的：</strong>${mokuhyo}</p>`;
+            if (kpi) html += `<p><strong>今月KPI：</strong>${kpi}</p>`;
             const raw = Number.isFinite(rate) ? rate * 100 : 0;
             const pct = Math.floor(raw * 100) / 100;
-            html += `<div class="progress-container"><span><strong>達成率:${pct}%<strong></span>` +
-                `<div class="progress-bar-bg"><div class="progress-bar" style="width:${pct}%;"></div></div>` +
-                `</div></div>`;
+            if (member) {
+
+            }
+            html += `
+                    <div class="progress-container">
+                        <div>
+                            <span><strong>達成率：${pct}%</strong></span>
+                            <div class="progress-bar-bg">
+                                <div class="progress-bar" style="width: ${pct}%;"></div>
+                            </div>
+                        </div>
+                    </div>` ;
+            if (title != '代表かず') {
+                html += `    
+                    <p class="manager">責任者: ${member}</p>`;
+            } else {
+                html += `
+                    <p class="manager"></p>`;
+            }
+
             return html;
         }
 
@@ -73,7 +97,8 @@
                             node.rinen,
                             node.mokuhyo,
                             node.kpi,
-                            node.tasseiRitsu
+                            node.tasseiRitsu,
+                            node.member
                         )
                     },
                     node.parent || '',
@@ -101,7 +126,7 @@
         $(function () {
             google.charts.setOnLoadCallback(function () {
                 fetchAndDraw();
-                setInterval(fetchAndDraw, 3000);
+                // setInterval(fetchAndDraw, 3000);
             });
         });
     </script>
